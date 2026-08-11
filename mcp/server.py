@@ -1,6 +1,6 @@
 import os
 
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 from .models import PipeSegment
 from .tools import validate_pipeline_data
@@ -36,6 +36,5 @@ def validate_pipeline(pipeline: dict) -> dict:
 
 
 if __name__ == "__main__":
-    # Render and similar hosts provide the listening port through PORT.
     port = int(os.getenv("PORT", "8000"))
     mcp.run(transport="streamable-http", host="0.0.0.0", port=port)
