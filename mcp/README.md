@@ -1,30 +1,43 @@
 # Piping Design MCP server
 
-This directory contains the first MCP server for the Piping Design project.
+This directory contains the remote MCP server for the Piping Design project.
 
 ## What it does
 
-It exposes deterministic tools for creating a pipe segment and validating pipeline geometry.
+It exposes deterministic tools for creating pipe segments and validating pipeline geometry.
 
 ## Run locally
 
+From the repository root:
+
 ```bash
-cd mcp
 python -m venv .venv
 # activate the environment
-pip install -r requirements.txt
-python server.py
+pip install -r mcp/requirements.txt
+python -m mcp.server
 ```
 
-The server uses Streamable HTTP. It must be deployed at a public HTTPS MCP endpoint before ChatGPT Web can connect to it remotely.
+The server uses Streamable HTTP and listens on `0.0.0.0:$PORT` (default `8000`).
 
-## Important
+## Remote deployment
 
-A GitHub repository is source code, not an MCP endpoint. ChatGPT Web cannot connect directly to this repository as a live MCP server.
+A hosting service must provide:
 
-After deployment, the MCP endpoint should be added in ChatGPT under the app/connector settings that support custom MCP servers. The exact UI depends on the ChatGPT plan and feature availability.
+- Python 3.11+;
+- build command: `pip install -r mcp/requirements.txt`;
+- start command: `python -m mcp.server`;
+- a public HTTPS URL;
+- the host-provided `PORT` environment variable.
 
-## First tools
+GitHub is the source repository; it is not itself a live MCP endpoint.
+
+After deployment, add the resulting public MCP endpoint to an MCP-capable ChatGPT app/connector if that capability is available on the account.
+
+## Tools
 
 - `create_pipe_segment`: deterministic XYZ segment creation and length calculation.
 - `validate_pipeline`: connectivity and basic geometry validation.
+
+## Security
+
+Do not put secrets in this repository. Authentication should be added before exposing project data or write operations publicly.
