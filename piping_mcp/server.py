@@ -1,9 +1,14 @@
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 from .models import PipeSegment
 from .tools import validate_pipeline_data
 
-mcp = FastMCP("Piping Design")
+mcp = FastMCP(
+    "Piping Design",
+    stateless_http=True,
+    json_response=True,
+)
 
 
 @mcp.tool()
@@ -33,6 +38,12 @@ def validate_pipeline(pipeline: dict) -> dict:
     return validate_pipeline_data(pipeline)
 
 
-# Render runs this module behind Uvicorn. FastMCP exposes the MCP endpoint at /mcp.
-# Using an ASGI app avoids relying on FastMCP.run() keyword arguments that vary by version.
-app = mcp.http_app(path="/mcp")
+# Render serves this ASGI application with Uvicorn.
+# host=0.0.0.0 disables the localhost-only DNS-rebinding defaults because
+# Render provides the public HTTPS boundary. Authentication will be added next.
+app = mcp.streamable_http_app(
+    host="0.0.0.0",
+    transport_security=TransportSecuritySettings(
+        enable_dns_rebinding_protection=False,
+    ),
+)
