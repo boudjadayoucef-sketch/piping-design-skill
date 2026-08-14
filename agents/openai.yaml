@@ -1,4 +1,4 @@
 interface:
   display_name: "Piping Design"
-  short_description: "Concevoir des logiciels Python de tuyauterie 3D"
-  default_prompt: "Use $piping-design to develop and improve my Python piping design application."
+  short_description: "Concevoir des systèmes de tuyauterie et reconstruire des modèles depuis P&ID, CAD ou photos"
+  default_prompt: "Use $piping-design to develop industrial piping software, interpret P&ID/CAD/photo inputs, reconstruct piping models, and validate engineering results."
