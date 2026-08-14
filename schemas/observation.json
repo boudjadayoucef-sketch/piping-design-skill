@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://piping-design-skill.local/schemas/observation.json",
+  "title": "Piping Observation",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "observation_version": {"type": "string"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {"type": "string", "enum": ["photo", "sketch", "pid", "cad"]},
+        "id": {"type": "string"}
+      },
+      "required": ["type", "id"]
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string"},
+          "bbox": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4},
+          "mask_ref": {"type": "string"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "evidence_refs": {"type": "array", "items": {"type": "string"}}
+        },
+        "required": ["id", "type", "confidence"]
+      }
+    },
+    "text": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"},
+          "value": {"type": "string"},
+          "bbox": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "evidence_refs": {"type": "array", "items": {"type": "string"}}
+        },
+        "required": ["id", "value", "confidence"]
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {"type": "string"},
+          "target": {"type": "string"},
+          "type": {"type": "string"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "evidence_refs": {"type": "array", "items": {"type": "string"}}
+        },
+        "required": ["source", "target", "type", "confidence"]
+      }
+    },
+    "geometry_hints": {"type": "array", "items": {"type": "object"}},
+    "evidence": {"type": "array", "items": {"$ref": "evidence.json"}}
+  },
+  "required": ["observation_version", "source", "objects", "text", "relations", "evidence"]
+}
