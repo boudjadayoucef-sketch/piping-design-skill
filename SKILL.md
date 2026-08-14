@@ -1,174 +1,62 @@
 ---
 name: piping-design
-description: Skill for developing industrial piping software in Python, including piping components, 3D routing, isometric drawings, P&ID data, CAD/BIM interoperability, MTO/BOM and QA/QC.
+description: Core skill for developing industrial piping design and isometric software with AI-assisted sketch recognition, DXF interoperability, deterministic geometry, P&ID, MTO/BOM and QA/QC.
 ---
 
-# Piping Design
+# Piping Design Agent Skill
 
-Use this skill when designing, coding, reviewing or extending a Python application for industrial piping and pipeline design.
+Use this skill when designing, coding, reviewing or extending an industrial piping design and isometric application.
 
-## Main capabilities
+## Architecture
 
-- Piping component modeling
-- 3D pipe routing
-- Equipment and nozzle connections
-- P&ID data interpretation
-- Isometric drawing preparation
-- MTO/BOM generation
-- Clash detection
-- QA/QC
-- CAD/BIM interoperability
-- JSON project data
+The canonical boundary is:
+
+`Sketch/DXF/DWG -> source model -> canonical Piping JSON -> QA/QC -> geometry/isometric -> DXF/SVG/PDF`
+
+The AI interprets intent and uncertain visual information. Python tools perform deterministic geometry, CAD parsing/export and validation.
+
+## Tool selection
+
+- Sketch/image: `sketch_analyze` then `sketch_to_piping_model`.
+- DXF: `cad_import_dxf` then normalize raw CAD entities into Piping JSON.
+- DXF generation: `cad_export_dxf`.
+- Geometry changes: deterministic Python functions, followed by `validate_pipeline`.
+- Never generate CAD syntax manually in an AI response.
 
 ## Engineering objects
 
-The application should support at least:
+Support at least Project, Pipeline, PipeSegment, Elbow, Tee, Reducer, Flange, Valve, Instrument, Equipment, Nozzle and Support. Every object has a stable unique ID.
 
-- Project
-- Pipeline
-- PipeLine
-- PipeSegment
-- Elbow
-- Tee
-- Reducer
-- Flange
-- Valve
-- Instrument
-- Equipment
-- Nozzle
-- Support
+## Geometry and routing
 
-Every object should have a unique ID.
+Use Cartesian XYZ coordinates. Python performs distances, vectors, intersections, rotations, transformations, routing, clash detection and lengths. A route is a connected graph of segments and components. Check connectivity after every geometry modification.
 
-## Geometry
+## Sketch recognition
 
-Use a Cartesian XYZ coordinate system.
-
-Never approximate engineering geometry when the Python geometry engine can calculate it.
-
-The AI should define the operation, while Python performs:
-
-- distances
-- vectors
-- intersections
-- rotations
-- transformations
-- routing
-- collision detection
-- lengths
-
-## Routing
-
-A pipe route consists of connected segments.
-
-Each segment should contain:
-
-- start point
-- end point
-- direction
-- length
-- diameter
-- material
-- line ID
-
-Check connectivity after every geometry modification.
-
-## Isometric drawings
-
-The application should be able to derive an isometric representation from the 3D piping model.
-
-Possible information:
-
-- pipe centerlines
-- fittings
-- valves
-- dimensions
-- elevations
-- tags
-- weld numbers
-- flow direction
-- BOM/MTO
-
-The AI should prepare drawing data. The Python graphics engine should generate the actual drawing.
-
-## P&ID
-
-P&ID information can be transformed into structured objects:
-
-P&ID → Equipment → Nozzles → Lines → Components → 3D model
-
-Never invent missing engineering information. Mark assumptions explicitly.
-
-## MTO/BOM
-
-Extract quantities from the structured model.
-
-Example:
-
-PIPE DN150: 25.4 m
-ELBOW DN150: 8
-TEE DN150: 2
-VALVE DN150: 3
-FLANGE DN150: 12
-
-## QA/QC
-
-Check for:
-
-- disconnected segments
-- missing IDs
-- duplicate tags
-- invalid coordinates
-- zero-length segments
-- incompatible connections
-- missing diameters
-- missing materials
-- potential clashes
+Recognition is probabilistic. Preserve confidence and provenance for every detected entity. A crossing is not automatically a connection. Missing dimensions, specifications or tags must remain missing or be marked as assumptions.
 
 ## CAD/BIM
 
-Keep CAD/BIM import/export separated from the core piping model.
+Keep CAD/BIM adapters separate from the core model. Preserve source file, entity handle, layer and block metadata when available. DXF is parsed into a raw CAD model before piping interpretation. DWG adapters should convert or delegate to a CAD service rather than contaminate the core model.
 
-Preferred architecture:
+## Isometrics
 
-CAD/BIM file
-→ importer
-→ normalized piping model
-→ geometry engine
-→ application
+Derive isometric drawing data from the 3D piping model. Include centerlines, fittings, valves, dimensions, elevations, tags, weld numbers, flow direction and BOM/MTO references when available. Python generates actual drawing entities.
 
-Supported targets may include:
+## P&ID
 
-- DXF
-- DWG
-- IFC
-- Revit
-- CSV
-- Excel
-- JSON
+Transform structured P&ID information through Equipment -> Nozzles -> Lines -> Components -> 3D model. Never invent engineering information.
+
+## MTO/BOM
+
+Extract quantities from the structured model. Do not estimate quantities from prose when the model can calculate them.
+
+## QA/QC
+
+Check disconnected segments, missing or duplicate IDs/tags, invalid coordinates, zero-length segments, incompatible connections, invalid diameters, missing required attributes and potential clashes.
 
 ## Python architecture
 
-Prefer modular Python code.
+Prefer modular packages: `models/`, `geometry/`, `piping/`, `routing/`, `cad/`, `sketch/`, `isometric/`, `pid/`, `mto/`, `qa/`.
 
-Recommended separation:
-
-geometry/
-piping/
-routing/
-isometric/
-pid/
-cad/
-mto/
-qa/
-models/
-
-Use typed Python models and clear interfaces.
-
-Do not place geometry calculations directly inside UI code.
-
-## Important rule
-
-The Skill provides engineering logic and development guidance.
-
-The Python application is responsible for actual geometry calculations and deterministic results.
+The Skill provides engineering logic and development guidance. The Python application is responsible for actual deterministic results.
