@@ -12,7 +12,7 @@ Convert a photo or sketch into a structured visual observation. Do not produce t
 - optional project context
 
 ## Output
-`sсhemas/observation.json`
+`schemas/observation.json`
 
 The output may contain:
 - pipes and pipe-like objects
