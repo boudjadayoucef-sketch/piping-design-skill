@@ -1,24 +1,79 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Piping Project",
+  "$id": "https://piping-design-skill.local/schemas/piping.json",
+  "title": "Canonical Piping Project",
   "type": "object",
+  "additionalProperties": false,
   "properties": {
-    "project_id": {"type": "string"},
+    "schema_version": {"type": "string"},
+    "project_id": {"type": "string", "minLength": 1},
     "lines": {
       "type": "array",
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "properties": {
           "id": {"type": "string"},
           "line_number": {"type": "string"},
-          "nominal_diameter": {"type": "number"},
+          "nominal_diameter": {"type": "number", "exclusiveMinimum": 0},
           "material": {"type": "string"},
-          "segments": {"type": "array"},
-          "components": {"type": "array"}
+          "segments": {"type": "array", "items": {"type": "object"}},
+          "components": {"type": "array", "items": {"type": "string"}},
+          "evidence_refs": {"type": "array", "items": {"type": "string"}}
         },
-        "required": ["id", "line_number"]
+        "required": ["id", "line_number", "segments", "components"]
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string"},
+          "tag": {"type": "string"},
+          "nominal_diameter": {"type": "number", "exclusiveMinimum": 0},
+          "position": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+          "orientation": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+          "evidence_refs": {"type": "array", "items": {"type": "string"}}
+        },
+        "required": ["id", "type"]
+      }
+    },
+    "connections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"},
+          "from": {"type": "string"},
+          "to": {"type": "string"},
+          "type": {"type": "string"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "evidence_refs": {"type": "array", "items": {"type": "string"}}
+        },
+        "required": ["id", "from", "to", "type", "confidence"]
+      }
+    },
+    "evidence": {"type": "array", "items": {"$ref": "evidence.json"}},
+    "uncertainties": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"},
+          "object_id": {"type": "string"},
+          "property": {"type": "string"},
+          "reason": {"type": "string"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "requires_review": {"type": "boolean"}
+        },
+        "required": ["id", "object_id", "property", "reason", "confidence", "requires_review"]
       }
     }
   },
-  "required": ["project_id", "lines"]
+  "required": ["schema_version", "project_id", "lines", "components", "connections", "evidence", "uncertainties"]
 }
