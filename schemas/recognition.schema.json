@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Piping Sketch Recognition",
+  "type": "object",
+  "required": ["source", "entities"],
+  "properties": {
+    "source": {"type": "object"},
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "confidence"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "geometry": {"type": "object"},
+          "text": {"type": ["string", "null"]},
+          "connections": {"type": "array", "items": {"type": "string"}},
+          "source_ref": {"type": ["string", "null"]}
+        }
+      }
+    }
+  }
+}
