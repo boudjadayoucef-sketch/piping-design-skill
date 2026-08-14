@@ -1,24 +1,74 @@
 ---
 name: piping-design
-description: Skill for developing industrial piping software in Python, including piping components, 3D routing, isometric drawings, P&ID data, CAD/BIM interoperability, MTO/BOM and QA/QC.
+description: Skill for industrial piping engineering with agent-ready vision, reconstruction, topology, geometry, QA/QC and isometric workflows.
 ---
 
 # Piping Design
 
-Use this skill when designing, coding, reviewing or extending a Python application for industrial piping and pipeline design.
+Use this skill when designing, coding, reviewing or extending industrial piping software and when converting P&ID, CAD, sketches or photographs into a validated structured piping model.
 
-## Main capabilities
+## Architecture
 
-- Piping component modeling
-- 3D pipe routing
-- Equipment and nozzle connections
-- P&ID data interpretation
-- Isometric drawing preparation
-- MTO/BOM generation
-- Clash detection
-- QA/QC
-- CAD/BIM interoperability
-- JSON project data
+The skill is organized around a canonical engineering model and explicit agent contracts:
+
+```text
+Photo / Sketch / P&ID / DXF
+        |
+        v
+Observation JSON
+        |
+        v
+Topology / Reconstruction
+        |
+        v
+Canonical Piping JSON
+        |
+        +--> Engineering / Geometry
+        +--> QA/QC
+        +--> Isometric / MTO / CAD
+```
+
+AI agents interpret inputs, select operations and manage uncertainty. Deterministic Python tools perform geometry, connectivity, routing, validation and file generation.
+
+## Agent boundaries
+
+Agents must communicate through versioned schemas and must not silently mutate another layer's representation.
+
+- **Vision**: detects piping objects, visual relations and geometry hints from images.
+- **OCR**: extracts text and associates text regions with observations.
+- **Topology**: converts observations into a connectivity graph.
+- **Reconstruction**: converts observations + topology + engineering context into canonical piping data.
+- **Engineering**: applies domain rules and identifies missing or incompatible engineering information.
+- **Geometry**: requests deterministic calculations; it does not invent coordinates.
+- **QA**: validates the canonical model and returns errors/warnings with evidence.
+- **Isometric**: prepares deterministic drawing input from a validated model.
+- **Orchestrator**: plans agent/tool calls and routes artifacts; it is not the source of engineering truth.
+
+## Canonical artifacts
+
+### Observation JSON
+
+Observation data describes what was seen or extracted. It is not an engineering model.
+
+It should contain, where available:
+
+- source metadata
+- detected objects
+- text regions
+- visual relations
+- geometry hints
+- confidence
+- evidence references
+
+### Canonical Piping JSON
+
+The canonical piping model is the engineering source of truth. It should contain stable IDs, lines, segments, components, connections and explicit uncertainty/evidence metadata.
+
+Never promote an uncertain observation to engineering truth without recording its source and confidence.
+
+### Evidence
+
+Every inferred or externally observed property should be traceable to an evidence record whenever practical. Do not fabricate evidence.
 
 ## Engineering objects
 
@@ -59,9 +109,7 @@ The AI should define the operation, while Python performs:
 
 ## Routing
 
-A pipe route consists of connected segments.
-
-Each segment should contain:
+A pipe route consists of connected segments. Each segment should contain, when known:
 
 - start point
 - end point
@@ -75,7 +123,7 @@ Check connectivity after every geometry modification.
 
 ## Isometric drawings
 
-The application should be able to derive an isometric representation from the 3D piping model.
+The application should derive an isometric representation from the validated 3D piping model.
 
 Possible information:
 
@@ -89,7 +137,7 @@ Possible information:
 - flow direction
 - BOM/MTO
 
-The AI should prepare drawing data. The Python graphics engine should generate the actual drawing.
+The AI prepares drawing data. The Python graphics engine generates the actual drawing.
 
 ## P&ID
 
@@ -97,11 +145,23 @@ P&ID information can be transformed into structured objects:
 
 P&ID → Equipment → Nozzles → Lines → Components → 3D model
 
-Never invent missing engineering information. Mark assumptions explicitly.
+Never invent missing engineering information. Mark assumptions and unresolved values explicitly.
+
+## Photo / sketch reconstruction
+
+Do not use a direct `image -> final piping JSON` shortcut.
+
+Use:
+
+```text
+image -> observation -> topology/reconstruction -> canonical piping model -> QA
+```
+
+Preserve confidence and evidence so a human or future PD&I application can review uncertain properties.
 
 ## MTO/BOM
 
-Extract quantities from the structured model.
+Extract quantities only from the structured model.
 
 Example:
 
@@ -124,6 +184,7 @@ Check for:
 - missing diameters
 - missing materials
 - potential clashes
+- unresolved or low-confidence assumptions
 
 ## CAD/BIM
 
@@ -133,7 +194,7 @@ Preferred architecture:
 
 CAD/BIM file
 → importer
-→ normalized piping model
+→ observation/raw CAD or normalized piping model
 → geometry engine
 → application
 
@@ -147,28 +208,39 @@ Supported targets may include:
 - Excel
 - JSON
 
+## MCP / deterministic tools
+
+MCP tools are the execution boundary for deterministic engineering operations. Agents may request operations such as routing, geometry calculation, connectivity checks and validation, but the tool result is authoritative.
+
+Do not put geometry calculations or engineering validation directly into prompts or UI code.
+
 ## Python architecture
 
-Prefer modular Python code.
+Prefer modular Python code with clear interfaces:
 
-Recommended separation:
-
+```text
+models/
+schemas/
+vision/
+topology/
+reconstruction/
 geometry/
-piping/
 routing/
-isometric/
 pid/
 cad/
 mto/
 qa/
-models/
+isometric/
+piping_mcp/
+```
 
-Use typed Python models and clear interfaces.
+Use typed Python models and versioned JSON schemas.
 
-Do not place geometry calculations directly inside UI code.
+## Important rules
 
-## Important rule
-
-The Skill provides engineering logic and development guidance.
-
-The Python application is responsible for actual geometry calculations and deterministic results.
+1. AI interprets, plans and selects operations; deterministic code calculates and validates.
+2. Never invent missing engineering information. Record uncertainty explicitly.
+3. Observation data and canonical engineering data are different artifacts.
+4. Every object has a stable unique ID.
+5. Prefer schema validation at every agent boundary.
+6. Keep CAD/BIM adapters separate from the canonical piping model.
