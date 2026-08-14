@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://piping-design-skill.local/schemas/qa.json",
+  "title": "Piping QA Result",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "string"},
+    "status": {"type": "string", "enum": ["PASS", "WARNING", "REJECTED"]},
+    "errors": {"type": "array", "items": {"$ref": "#/definitions/finding"}},
+    "warnings": {"type": "array", "items": {"$ref": "#/definitions/finding"}},
+    "review_required": {"type": "boolean"}
+  },
+  "definitions": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {"type": "string"},
+        "object_id": {"type": "string"},
+        "message": {"type": "string"},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}}
+      },
+      "required": ["code", "message"]
+    }
+  },
+  "required": ["schema_version", "status", "errors", "warnings", "review_required"]
+}
