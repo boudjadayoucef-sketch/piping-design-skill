@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Canonical Piping Model",
+  "type": "object",
+  "required": ["version", "pipelines"],
+  "properties": {
+    "version": {"type": "string"},
+    "project": {"type": "object"},
+    "units": {"type": "string", "default": "mm"},
+    "pipelines": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/pipeline"}
+    }
+  },
+  "$defs": {
+    "point3d": {
+      "type": "array",
+      "prefixItems": [{"type": "number"}, {"type": "number"}, {"type": "number"}],
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "segment": {
+      "type": "object",
+      "required": ["id", "start", "end", "diameter_mm", "line_id"],
+      "properties": {
+        "id": {"type": "string"},
+        "start": {"$ref": "#/$defs/point3d"},
+        "end": {"$ref": "#/$defs/point3d"},
+        "diameter_mm": {"type": "number", "exclusiveMinimum": 0},
+        "line_id": {"type": "string"},
+        "material": {"type": ["string", "null"]},
+        "source": {"type": ["object", "null"]}
+      }
+    },
+    "component": {
+      "type": "object",
+      "required": ["id", "type"],
+      "properties": {
+        "id": {"type": "string"},
+        "type": {"type": "string"},
+        "tag": {"type": ["string", "null"]},
+        "position": {"$ref": "#/$defs/point3d"},
+        "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "source": {"type": ["object", "null"]}
+      }
+    },
+    "pipeline": {
+      "type": "object",
+      "required": ["id", "segments"],
+      "properties": {
+        "id": {"type": "string"},
+        "tag": {"type": ["string", "null"]},
+        "spec": {"type": ["string", "null"]},
+        "segments": {"type": "array", "items": {"$ref": "#/$defs/segment"}},
+        "components": {"type": "array", "items": {"$ref": "#/$defs/component"}}
+      }
+    }
+  }
+}
