@@ -5,7 +5,7 @@ from .tools import (
     analyze_sketch_input,
     export_dxf_file,
     import_dxf_file,
-    sketch_to_piping_model,
+    sketch_to_piping_model as normalize_sketch_to_piping_model,
     validate_pipeline_data,
 )
 
@@ -54,6 +54,7 @@ def cad_import_dxf(file_path: str) -> dict:
 @mcp.tool()
 def cad_export_dxf(pipeline: dict, file_path: str) -> dict:
     """Export canonical pipe segments to a deterministic DXF file."""
+    from .tools import export_dxf_file
     return export_dxf_file(pipeline, file_path)
 
 
@@ -66,9 +67,7 @@ def sketch_analyze(file_path: str) -> dict:
 @mcp.tool()
 def sketch_to_piping_model(recognition: dict, line_id: str = "UNASSIGNED") -> dict:
     """Normalize vision recognition JSON into canonical pipe segments and validate them."""
-    return sketch_to_piping_model(recognition, line_id)
+    return normalize_sketch_to_piping_model(recognition, line_id)
 
 
-# ASGI application for Render/Uvicorn.
-# Uvicorn owns the network host and port; FastMCP creates the MCP app.
 app = mcp.streamable_http_app()
