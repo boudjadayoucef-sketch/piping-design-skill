@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://piping-design-skill.local/schemas/iso.json",
+  "title": "Canonical Isometric Representation",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "string"},
+    "project_id": {"type": "string"},
+    "units": {"type": "string"},
+    "title": {"type": "string"},
+    "segments": {"type": "array", "items": {"type": "object"}},
+    "components": {"type": "array", "items": {"type": "object"}},
+    "dimensions": {"type": "array", "items": {"type": "object"}},
+    "annotations": {"type": "array", "items": {"type": "object"}},
+    "views": {"type": "array", "items": {"type": "object"}},
+    "source_refs": {"type": "array", "items": {"type": "string"}}
+  },
+  "required": ["schema_version", "project_id", "units", "segments", "components", "dimensions", "annotations", "views", "source_refs"]
+}
