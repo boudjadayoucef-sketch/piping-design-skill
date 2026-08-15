@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://piping-design-skill.local/schemas/topology.json",
+  "title": "Piping Topology Graph",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "string"},
+    "source_observation": {"type": "string"},
+    "nodes": {"type": "array", "items": {"type": "object"}},
+    "edges": {"type": "array", "items": {"type": "object"}},
+    "uncertainties": {"type": "array", "items": {"type": "object"}}
+  },
+  "required": ["schema_version", "source_observation", "nodes", "edges", "uncertainties"]
+}
