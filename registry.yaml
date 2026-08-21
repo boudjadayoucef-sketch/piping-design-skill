@@ -1,0 +1,50 @@
+version: 1
+name: piping-skills
+purpose: PD&I engineering skills and AI orchestration registry
+
+policy:
+  ai_proposes_deterministic_verifies: true
+  human_validation_required_for_vision: true
+  heavy_tasks_async: true
+
+skills:
+  - name: google-developer
+    category: documentation
+    status: active
+    path: skills/google-developer/SKILL.md
+  - name: geometry
+    category: engineering
+    status: planned
+  - name: piping-rules
+    category: engineering
+    status: planned
+  - name: components
+    category: catalog
+    status: planned
+  - name: hydraulics
+    category: engineering
+    status: planned
+  - name: vision
+    category: ai
+    status: planned
+
+agents:
+  - name: piping-auditor
+    status: planned
+  - name: component-selector
+    status: planned
+  - name: sketch-to-isometric
+    status: planned
+  - name: engineering-assistant
+    status: planned
+
+workflows:
+  - name: sketch-to-isometric
+    engine: langflow
+    status: planned
+  - name: component-search
+    engine: langflow
+    status: planned
+  - name: project-audit
+    engine: langflow
+    status: planned
